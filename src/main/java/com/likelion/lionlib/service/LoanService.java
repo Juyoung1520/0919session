@@ -17,11 +17,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LoanService {
     private final LoanRepository loanRepository;
-
     private final GlobalService globalService;
 
-    public LoanResponse addLoan(LoanRequest loanRequest) {
-        Member member = globalService.findMemberById(loanRequest.getMemberId());
+    public LoanResponse addLoan(Long memberId, LoanRequest loanRequest) {
+        Member member = globalService.findMemberById(memberId);
         Book book = globalService.findBookById(loanRequest.getBookId());
         Loan savedLoan = Loan.builder()
                 .member(member)

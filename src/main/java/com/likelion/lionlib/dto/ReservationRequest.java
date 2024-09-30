@@ -10,5 +10,5 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ReservationRequest {
     private Long bookId; // 요청에서 넘어오는 book_id 필드를 담을 변수
-    private Long memberId;
+
 }

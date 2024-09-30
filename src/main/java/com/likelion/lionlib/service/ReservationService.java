@@ -5,6 +5,7 @@ import com.likelion.lionlib.domain.Member;
 import com.likelion.lionlib.domain.Reservation;
 import com.likelion.lionlib.dto.ReservationRequest;
 import com.likelion.lionlib.dto.ReservationResponse;
+import com.likelion.lionlib.dto.ReservationCountResponse;
 import com.likelion.lionlib.repository.BookRepository;
 import com.likelion.lionlib.repository.MemberRepository;
 import com.likelion.lionlib.repository.ReservationRepository;
@@ -25,20 +26,19 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
     private final MemberRepository memberRepository;
+    private final GlobalService globalService;
 
     @Transactional
-    public ReservationResponse addReservation(ReservationRequest reservationRequest) {
+    public ReservationResponse addReservation(Long memberId, ReservationRequest reservationRequest) {
         Long bookId = reservationRequest.getBookId();
-        Long memberId = reservationRequest.getMemberId();  // 이제 memberId도 요청에서 가져옴
+        Member member = globalService.findMemberById(memberId);  // 이제 memberId도 요청에서 가져옴
 
-        if (memberId == null || bookId == null) {
-            throw new IllegalArgumentException("Member ID and Book ID must not be null");
+        if (bookId == null) {
+            throw new IllegalArgumentException("Book ID must not be null");
         }
 
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with id: " + bookId));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
 
         Reservation reservation = Reservation.builder()
                 .book(book)
@@ -74,8 +74,8 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Long> getReservationCountByBookId(Long bookId) {
+    public ReservationCountResponse getReservationCountByBookId(Long bookId) {
         Long count = reservationRepository.countByBookId(bookId);
-        return Map.of("count", count);
+        return new ReservationCountResponse(count);
     }
 }
